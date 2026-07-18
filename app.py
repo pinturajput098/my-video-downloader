@@ -56,7 +56,7 @@ HTML_UI = """
 
             <div id="loader" class="hidden mt-8 text-center py-6">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-t-transparent mb-3"></div>
-                <p class="text-slate-400 text-xs animate-pulse">Extracting video streams via Cloud Proxy...</p>
+                <p class="text-slate-400 text-xs animate-pulse">Extracting video streams via Modern V10 Proxy...</p>
             </div>
 
             <div id="errorMessage" class="hidden mt-6 bg-red-950/40 border border-red-800/60 text-red-300 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
@@ -66,11 +66,11 @@ HTML_UI = """
 
             <div id="resultCard" class="hidden mt-8 border-t border-slate-800 pt-6">
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                    <img id="resThumb" src="" alt="Thumbnail" class="w-full sm:w-36 h-24 object-cover rounded-lg border border-slate-700/50 bg-slate-900">
+                    <img id="resThumb" src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200" alt="Thumbnail" class="w-full sm:w-36 h-24 object-cover rounded-lg border border-slate-700/50 bg-slate-900">
                     <div class="flex-1 flex flex-col justify-between">
                         <div>
                             <span id="resSource" class="text-[10px] font-bold tracking-widest uppercase bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-0.5 rounded-full">LIVE</span>
-                            <h3 id="resTitle" class="text-sm font-semibold text-slate-200 line-clamp-2 mt-1.5">Video Title</h3>
+                            <h3 id="resTitle" class="text-sm font-semibold text-slate-200 line-clamp-2 mt-1.5">Video Successfully Fetched</h3>
                         </div>
                     </div>
                 </div>
@@ -83,7 +83,7 @@ HTML_UI = """
     </main>
 
     <footer class="w-full text-center py-6 border-t border-slate-900 bg-slate-950/40 text-xs text-slate-500">
-        <p>&copy; 2026 StreamGrab Network. Powered by Cobalt Engine APIs.</p>
+        <p>&copy; 2026 StreamGrab Network. Powered by Cobalt V10 Engine.</p>
     </footer>
 
     <script>
@@ -110,7 +110,6 @@ HTML_UI = """
                 const data = await response.json();
                 
                 if (data.success) {
-                    document.getElementById('resThumb').src = data.thumbnail;
                     document.getElementById('resTitle').innerText = data.title;
                     document.getElementById('resSource').innerText = data.source;
                     document.getElementById('resDlLink').href = data.download_url;
@@ -146,33 +145,29 @@ def download_video():
         
     video_url = data['url'].strip()
     
-    # Premium Anti-Block Cobalt API Config
-    api_url = "https://api.cobalt.tools/api/json"
+    # Updated to Cobalt V10 Root Endpoint (No /api/json)
+    api_url = "https://api.cobalt.tools/"
     headers = {
         "Accept": "application/json",
         "Content-Type": "application/json"
     }
     payload = {
-        "url": video_url,
-        "videoQuality": "720",
-        "filenameStyle": "classic"
+        "url": video_url
     }
 
     try:
         response = requests.post(api_url, json=payload, headers=headers, timeout=15)
         res_data = response.json()
         
-        # Check standard stream response
-        if res_data.get("status") == "stream":
+        # Cobalt V10 Status Handlers
+        if res_data.get("status") in ["stream", "redirect"]:
             return jsonify({
                 "success": True,
-                "title": res_data.get("title", "Fetched Media"),
+                "title": res_data.get("title", "Fetched Video Stream"),
                 "download_url": res_data.get("url"),
-                "thumbnail": "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200",
                 "source": "YouTube" if "youtu" in video_url else "Instagram"
             })
         
-        # Check picker response (for Multi-post/Instagram Carousels)
         elif res_data.get("status") == "picker":
             picker_items = res_data.get("picker", [])
             if picker_items:
@@ -180,14 +175,16 @@ def download_video():
                     "success": True,
                     "title": res_data.get("title", "Multi-Media Content"),
                     "download_url": picker_items[0].get("url"),
-                    "thumbnail": "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200",
                     "source": "Instagram" if "instagram" in video_url else "Media"
                 })
-                
-        return jsonify({"success": False, "error": res_data.get("text", "Engine rejected this link format.")}), 400
+        
+        # If the API returns a structured error object
+        error_obj = res_data.get("error", {})
+        error_text = error_obj.get("code") or res_data.get("text") or "Engine rejected this link format."
+        return jsonify({"success": False, "error": error_text}), 400
                 
     except Exception as e:
-        return jsonify({"success": False, "error": "Proxy Engine Timeout. Please try again."}), 500
+        return jsonify({"success": False, "error": "Proxy Engine Connection Reset. Please try again."}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
