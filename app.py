@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template_string
-import yt_dlp
+import requests
 import os
 
 app = Flask(__name__)
@@ -56,7 +56,7 @@ HTML_UI = """
 
             <div id="loader" class="hidden mt-8 text-center py-6">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-t-transparent mb-3"></div>
-                <p class="text-slate-400 text-xs animate-pulse">Extracting video streams...</p>
+                <p class="text-slate-400 text-xs animate-pulse">Extracting video streams via Cloud Proxy...</p>
             </div>
 
             <div id="errorMessage" class="hidden mt-6 bg-red-950/40 border border-red-800/60 text-red-300 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
@@ -69,11 +69,8 @@ HTML_UI = """
                     <img id="resThumb" src="" alt="Thumbnail" class="w-full sm:w-36 h-24 object-cover rounded-lg border border-slate-700/50 bg-slate-900">
                     <div class="flex-1 flex flex-col justify-between">
                         <div>
-                            <span id="resSource" class="text-[10px] font-bold tracking-widest uppercase bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-0.5 rounded-full">SOURCE</span>
+                            <span id="resSource" class="text-[10px] font-bold tracking-widest uppercase bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-0.5 rounded-full">LIVE</span>
                             <h3 id="resTitle" class="text-sm font-semibold text-slate-200 line-clamp-2 mt-1.5">Video Title</h3>
-                        </div>
-                        <div class="text-xs text-slate-400 mt-2">
-                            <span><i class="fa-regular fa-clock mr-1"></i> <span id="resDuration">00:00</span></span>
                         </div>
                     </div>
                 </div>
@@ -86,7 +83,7 @@ HTML_UI = """
     </main>
 
     <footer class="w-full text-center py-6 border-t border-slate-900 bg-slate-950/40 text-xs text-slate-500">
-        <p>&copy; 2026 StreamGrab Network. Powered by Cloud Infrastructure.</p>
+        <p>&copy; 2026 StreamGrab Network. Powered by Cobalt Engine APIs.</p>
     </footer>
 
     <script>
@@ -113,14 +110,13 @@ HTML_UI = """
                 const data = await response.json();
                 
                 if (data.success) {
-                    document.getElementById('resThumb').src = data.thumbnail || 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=150';
+                    document.getElementById('resThumb').src = data.thumbnail;
                     document.getElementById('resTitle').innerText = data.title;
                     document.getElementById('resSource').innerText = data.source;
-                    document.getElementById('resDuration').innerText = data.duration;
                     document.getElementById('resDlLink').href = data.download_url;
                     resCard.classList.remove('hidden');
                 } else {
-                    showError(data.error || "Failed to parse link.");
+                    showError(data.error || "Failed to parse link via cloud proxy.");
                 }
             } catch (err) {
                 showError("Server Connection Lost.");
@@ -150,63 +146,50 @@ def download_video():
         
     video_url = data['url'].strip()
     
-    # Advanced Bypass Configuration using YouTube iOS Client App spoofing
-    ydl_opts = {
-        'format': 'best',
-        'quiet': True,
-        'no_warnings': True,
-        'cachedir': False,
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['ios'],
-            }
-        },
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.9',
-        }
+    # Premium Anti-Block Cobalt API Config
+    api_url = "https://api.cobalt.tools/api/json"
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "url": video_url,
+        "videoQuality": "720",
+        "filenameStyle": "classic"
     }
 
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=False)
-            stream_url = info.get('url')
-            title = info.get('title', 'Downloaded_Video')
-            thumbnail = info.get('thumbnail', '')
-            duration = info.get('duration', 0)
-            
-            minutes = int(duration // 60)
-            seconds = int(duration % 60)
-            duration_str = f"{minutes:02d}:{seconds:02d}"
-            
-            if not stream_url:
-                formats = info.get('formats', [])
-                for f in reversed(formats):
-                    if f.get('vcodec') != 'none' and f.get('url'):
-                        stream_url = f.get('url')
-                        break
-
-            if stream_url:
+        response = requests.post(api_url, json=payload, headers=headers, timeout=15)
+        res_data = response.json()
+        
+        # Check standard stream response
+        if res_data.get("status") == "stream":
+            return jsonify({
+                "success": True,
+                "title": res_data.get("title", "Fetched Media"),
+                "download_url": res_data.get("url"),
+                "thumbnail": "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200",
+                "source": "YouTube" if "youtu" in video_url else "Instagram"
+            })
+        
+        # Check picker response (for Multi-post/Instagram Carousels)
+        elif res_data.get("status") == "picker":
+            picker_items = res_data.get("picker", [])
+            if picker_items:
                 return jsonify({
                     "success": True,
-                    "title": title,
-                    "download_url": stream_url,
-                    "thumbnail": thumbnail,
-                    "duration": duration_str,
-                    "source": "YouTube" if "youtube.com" in video_url or "youtu.be" in video_url else "Instagram"
+                    "title": res_data.get("title", "Multi-Media Content"),
+                    "download_url": picker_items[0].get("url"),
+                    "thumbnail": "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200",
+                    "source": "Instagram" if "instagram" in video_url else "Media"
                 })
-            else:
-                return jsonify({"success": False, "error": "Direct stream not found."}), 400
+                
+        return jsonify({"success": False, "error": res_data.get("text", "Engine rejected this link format.")}), 400
                 
     except Exception as e:
-        # Error text ko thoda clean karke bhejenge user tak
-        err_msg = str(e)
-        if "Sign in to confirm you're not a bot" in err_msg:
-            err_msg = "YouTube blocked this server IP. Try another link or we need to add cookies.txt."
-        return jsonify({"success": False, "error": err_msg}), 500
+        return jsonify({"success": False, "error": "Proxy Engine Timeout. Please try again."}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
-        
+    
