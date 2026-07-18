@@ -56,7 +56,7 @@ HTML_UI = """
 
             <div id="loader" class="hidden mt-8 text-center py-6">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-t-transparent mb-3"></div>
-                <p id="loaderText" class="text-slate-400 text-xs animate-pulse">Scanning global bypass array...</p>
+                <p class="text-slate-400 text-xs animate-pulse">Decrypting secure media stream via master node...</p>
             </div>
 
             <div id="errorMessage" class="hidden mt-6 bg-red-950/40 border border-red-800/60 text-red-300 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
@@ -83,7 +83,7 @@ HTML_UI = """
     </main>
 
     <footer class="w-full text-center py-6 border-t border-slate-900 bg-slate-950/40 text-xs text-slate-500">
-        <p>&copy; 2026 StreamGrab Network. Powered by Hyper-Resilient Mirror Routing.</p>
+        <p>&copy; 2026 StreamGrab Network. Powered by Optimized V10 Routing.</p>
     </footer>
 
     <script>
@@ -115,10 +115,10 @@ HTML_UI = """
                     document.getElementById('resDlLink').href = data.download_url;
                     resCard.classList.remove('hidden');
                 } else {
-                    showError(data.error || "All endpoints congested. Re-fetch in 5 seconds.");
+                    showError(data.error || "Server cluster busy. Please re-fetch.");
                 }
             } catch (err) {
-                showError("Server Connection Interrupted. Try again.");
+                showError("Connection timeout. Try again.");
             } finally {
                 loader.classList.add('hidden');
                 btn.disabled = false;
@@ -145,42 +145,30 @@ def download_video():
         
     video_url = data['url'].strip()
     
-    # Massive Pool of Open Global Cobalt API Mirrors
+    # Clean pool of active global Cobalt endpoints
     bypass_nodes = [
         "https://cobalt.moe",
+        "https://co.wuk.sh",
         "https://cobalt.bndkt.me",
         "https://cobalt.lewd.tech",
         "https://api.cobalt.lol",
-        "https://cobalt.perennialte.ch",
-        "https://cobalt.api.kwiatecka.xyz",
-        "https://cobalt.q67.me",
-        "https://co.wuk.sh",
-        "https://api.cobalt.tools"
+        "https://cobalt.perennialte.ch"
     ]
     
-    # Spoofed Desktop Browser Headers to completely trick firewalls & prevent rate-limiting
+    # Pure headers required for direct API ingestion
     headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Origin": "https://cobalt.tools",
-        "Referer": "https://cobalt.tools/",
-        "Accept-Language": "en-US,en;q=0.9"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
     
-    payload = {
-        "url": video_url,
-        "videoQuality": "720",
-        "downloadMode": "video"
-    }
+    # Strictly clean payload with only the required 'url' key to satisfy strict V10 schemas
+    payload = {"url": video_url}
 
-    # Brute force rotation logic
-    for index, node in enumerate(bypass_nodes):
+    for node in bypass_nodes:
         try:
             endpoint = node if node.endswith('/') else f"{node}/"
-            
-            # Fast aggressive timeout (4 seconds per node)
-            response = requests.post(endpoint, json=payload, headers=headers, timeout=4)
+            response = requests.post(endpoint, json=payload, headers=headers, timeout=5)
             
             if response.status_code == 200:
                 res_data = response.json()
@@ -189,7 +177,7 @@ def download_video():
                 if status in ["stream", "redirect"]:
                     return jsonify({
                         "success": True,
-                        "title": res_data.get("title", "Decrypted Stream"),
+                        "title": res_data.get("title", "Decrypted Video Stream"),
                         "download_url": res_data.get("url"),
                         "source": "YouTube" if "youtu" in video_url else "Instagram"
                     })
@@ -200,18 +188,13 @@ def download_video():
                             "success": True,
                             "title": res_data.get("title", "Multi-Stream Content"),
                             "download_url": picker_items[0].get("url"),
-                            "source": "Media Stream"
+                            "source": "Instagram" if "instagram" in video_url else "Media"
                         })
-            
-            # If current node fails or returns non-200, log silently and cycle to next
-            print(f"Node {index} ({node}) bypassed with status code: {response.status_code}")
+            continue
+        except Exception:
             continue
             
-        except Exception as e:
-            print(f"Node {index} timed out or failed. Error: {str(e)}")
-            continue
-            
-    return jsonify({"success": False, "error": "All premium cloud filters are actively rate-limiting this video right now. Please re-fetch in a few moments."}), 500
+    return jsonify({"success": False, "error": "All bypass nodes are syncing. Please click Fetch again in 3 seconds."}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
