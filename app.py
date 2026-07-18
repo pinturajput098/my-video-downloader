@@ -5,24 +5,23 @@ import os
 
 app = Flask(__name__)
 
-# Premium Ultra-Fast UI with Automated Client-Side Failover Engine
+# Premium Self-Contained UI with Client-Side Direct Decryption
 HTML_UI = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ StreamGrab Pro - Premium Multi-Engine Downloader</title>
+    <title>⚡ StreamGrab Pro - Premium Downloader</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         body { background: linear-gradient(135deg, #090d16 0%, #111428 100%); }
         .glass-card { background: rgba(22, 28, 45, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .glow-btn { box-shadow: 0 0 25px rgba(6, 182, 212, 0.35); }
     </style>
 
-    <!-- MONETAG AD INTEGRATION -->
+    <!-- MONETAG AD TAG INTEGRATION -->
     <script src="https://quge5.com/88/tag.min.js" data-zone="232482" async data-cfasync="false"></script>
 </head>
 <body class="text-slate-200 min-h-screen font-sans flex flex-col justify-between">
@@ -50,47 +49,50 @@ HTML_UI = """
                     <input type="text" id="mediaUrl" placeholder="Paste YouTube Shorts, Video or Reel link..." class="w-full pl-11 pr-4 py-4 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition-all duration-200 text-sm sm:text-base">
                 </div>
 
-                <button onclick="startExtraction()" id="btnText" class="w-full bg-gradient-to-r from-cyan-600 via-teal-600 to-indigo-600 hover:opacity-95 text-white font-black py-4 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 glow-btn">
-                    <i class="fa-solid fa-circle-notch id-icon"></i>
+                <button onclick="startExtraction()" id="btnText" class="w-full bg-gradient-to-r from-cyan-600 via-teal-600 to-indigo-600 hover:opacity-95 text-white font-black py-4 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-cyan-950">
+                    <i class="fa-solid fa-bolt"></i>
                     <span>DOWNLOAD NOW (HIGH SPEED)</span>
                 </button>
             </div>
 
-            <!-- Loader View -->
+            <!-- Enhanced Status Loader -->
             <div id="loader" class="hidden mt-8 text-center py-6">
                 <div class="inline-block animate-spin rounded-full h-9 w-9 border-4 border-cyan-400 border-t-transparent mb-3"></div>
-                <p id="loaderText" class="text-slate-400 text-xs tracking-wider animate-pulse">Initializing cloud decryption pipeline...</p>
+                <p id="loaderText" class="text-slate-400 text-xs tracking-wider animate-pulse">Bypassing data-center restrictions...</p>
             </div>
 
-            <!-- Result Matrix -->
+            <!-- Result Box (Everything Happens Here) -->
             <div id="resultCard" class="hidden mt-8 border-t border-slate-900 pt-6">
                 <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-900 mb-4">
-                    <span class="text-[10px] font-black tracking-widest uppercase bg-cyan-950 text-cyan-400 border border-cyan-900 px-2.5 py-0.5 rounded-md">DECRYPTED</span>
-                    <h3 id="resTitle" class="text-sm font-bold text-slate-300 mt-2">Media File Ready For Extraction</h3>
+                    <span class="text-[10px] font-black tracking-widest uppercase bg-cyan-950 text-cyan-400 border border-cyan-900 px-2.5 py-0.5 rounded-md">DECRYPTED SUCCESSFULLY</span>
+                    <h3 id="resTitle" class="text-sm font-bold text-slate-300 mt-2">Your High-Speed Download Stream Is Ready</h3>
                 </div>
 
-                <!-- Anti-Ad Confusion Warning to keep revenue clean -->
-                <p class="text-[11px] text-amber-400 bg-amber-950/30 border border-amber-950 px-3 py-2.5 rounded-lg text-center mb-4">
-                    ⚠️ <b>Note:</b> First click may open a sponsor tab due to active script load. Close that tab immediately and click the button again to instantly save the file!
+                <!-- Guidance for Monetag Ads -->
+                <p class="text-[11px] text-amber-400 bg-amber-950/30 border border-amber-900/30 px-3 py-2.5 rounded-lg text-center mb-4">
+                    ⚠️ <b>Note:</b> First click will trigger a sponsor ad tab. Just close that tab immediately, come back here, and click the button a second time to save your video!
                 </p>
 
                 <a id="resDlLink" href="" target="_blank" rel="noopener noreferrer" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black py-4 px-4 rounded-xl text-center block tracking-wider shadow-lg">
-                    <i class="fa-solid fa-download mr-1.5"></i> SAVE TO DEVICE
+                    <i class="fa-solid fa-download mr-1.5"></i> SAVE TO DEVICE NOW
                 </a>
             </div>
         </div>
     </main>
 
     <footer class="w-full text-center py-6 border-t border-slate-950 bg-slate-950/40 text-[10px] text-slate-600 tracking-widest uppercase">
-        <p>&copy; 2026 StreamGrab Cloud Network. Powered by Private Layer Protocols.</p>
+        <p>&copy; 2026 StreamGrab Cloud Network. All Rights Reserved.</p>
     </footer>
 
     <script>
-        // Extracting Video ID helper
+        // Clean client-side regex extraction for full YouTube strings and clipped inputs
         function getYoutubeId(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
+            if (match && match[2]) {
+                return match[2].substring(0, 11);
+            }
+            return null;
         }
 
         async function startExtraction() {
@@ -99,51 +101,68 @@ HTML_UI = """
             const resCard = document.getElementById('resultCard');
             const loaderText = document.getElementById('loaderText');
 
-            if (!urlInput) return alert("Please enter a valid link!");
+            if (!urlInput) return alert("Please paste a valid video URL!");
 
             resCard.classList.add('hidden');
             loader.classList.remove('hidden');
             
-            // STEP 1: Server Side Processing Request
-            loaderText.innerText = "Querying production cloud servers...";
+            // Step 1: Client-Side Direct Phone Internet Extraction (Bypasses Render Block)
+            const ytId = getYoutubeId(urlInput);
+            if (ytId) {
+                loaderText.innerText = "Connecting to high-speed client nodes using your native IP...";
+                
+                // Testing direct public endpoints with open CORS policies right from the browser
+                const clientApis = [
+                    `https://api.savetube.me/download/video/${ytId}`,
+                    `https://api.cobalt.lol/`
+                ];
+
+                try {
+                    const response = await fetch(clientApis[0]);
+                    const jsonRes = await response.json();
+                    if (jsonRes && jsonRes.status === true && jsonRes.data) {
+                        const directUrl = jsonRes.data.video_formats['720p'] || jsonRes.data.video_formats['360p'] || Object.values(jsonRes.data.video_formats)[0];
+                        if (directUrl) {
+                            showFinalLink(jsonRes.data.title || "Decrypted YouTube Stream", directUrl);
+                            return;
+                        }
+                    }
+                } catch(err) { console.log("Client cluster node 1 skipped."); }
+
+                // Client-side Direct Cobalt Processing Call
+                try {
+                    const cobaltRes = await fetch("https://api.cobalt.lol", {
+                        method: "POST",
+                        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                        body: JSON.stringify({ url: urlInput })
+                    });
+                    const cobaltData = await cobaltRes.json();
+                    if (cobaltData && cobaltData.url) {
+                        showFinalLink(cobaltData.title || "Decrypted Short Stream", cobaltData.url);
+                        return;
+                    }
+                } catch(e) { console.log("Client cluster node 2 skipped."); }
+            }
+
+            // Step 2: Server-Side Processing Relay (Fallback)
+            loaderText.innerText = "Routing payload through global backup server array...";
             try {
-                const response = await fetch('/api/download', {
+                const srvResponse = await fetch('/api/download', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url: urlInput })
                 });
-                const data = await response.json();
-                
-                if (data.success) {
-                    showFinalLink(data.title, data.download_url);
+                const srvData = await srvResponse.json();
+                if (srvData.success) {
+                    showFinalLink(srvData.title, srvData.download_url);
                     return;
                 }
-            } catch (e) { console.log("Server pipeline blocked. Engaging Client-Side Engine..."); }
+            } catch(e) { console.log("Server fallback pipeline exhausted."); }
 
-            // STEP 2: CLIENT-SIDE DIRECT BYPASS (If server IP is rate-limited by YouTube)
-            loaderText.innerText = "Bypassing data-center blocks via Native Client Network...";
-            
-            const ytId = getYoutubeId(urlInput);
-            if (ytId) {
-                // Hitting highly-resilient public API endpoint directly from user IP
-                const clientApi = `https://api.savetube.me/download/video/${ytId}`;
-                try {
-                    const clientRes = await fetch(clientApi);
-                    const clientData = await clientRes.json();
-                    if (clientData && clientData.status === true && clientData.data) {
-                        // Picking highest quality progressive available stream
-                        const streamUrl = clientData.data.video_formats['720p'] || clientData.data.video_formats['360p'] || Object.values(clientData.data.video_formats)[0];
-                        if (streamUrl) {
-                            showFinalLink(clientData.data.title || "Decrypted YouTube Short", streamUrl);
-                            return;
-                        }
-                    }
-                } catch(err) { console.log("Client cluster engine drop."); }
-            }
-
-            // STEP 3: MASTER UNFAILING FAILOVER GATEWAY (Like vidssave professional mirror routing)
-            const backupGateway = `https://9xbuddy.xyz/process?url=${encodeURIComponent(urlInput)}`;
-            showFinalLink("Universal Backup Link Generated", backupGateway);
+            // Step 3: Clean web portal backup redirect (NO MORE 9XBUDDY WHITE SCREEN)
+            loaderText.innerText = "Finalizing secure conversion layout...";
+            const cleanBackup = `https://en.savefrom.net/1-youtube-video-downloader-4v8.html?url=${encodeURIComponent(urlInput)}`;
+            showFinalLink("Universal Secure Extraction Gateway", cleanBackup);
         }
 
         function showFinalLink(title, dlUrl) {
@@ -165,32 +184,11 @@ def index():
 def download_video():
     data = request.get_json()
     if not data or 'url' not in data:
-        return jsonify({"success": False, "error": "Target parameter empty"}), 400
+        return jsonify({"success": False, "error": "Empty tracking target"}), 400
         
     video_url = data['url'].strip()
     
-    # Direct internal extraction from a highly stable multi-format public engine
-    try:
-        # Parsing YouTube links directly via Savetube backend architecture relay
-        video_id_match = re.search(r'(?:v=|\/shorts\/|\/embed\/|\/vi\/|youtu\.be\/|v\/|e\/|shorts|embed|video\/)([^#\&\?]*).', video_url)
-        if video_id_match:
-            vid_id = video_id_match.group(1)[:11]
-            api_target = f"https://api.savetube.me/download/video/{vid_id}"
-            response = requests.get(api_target, headers={"User-Agent": "Mozilla/5.0"}, timeout=4)
-            if response.status_code == 200:
-                res_json = response.json()
-                if res_json.get("status") is True:
-                    formats = res_json.get("data", {}).get("video_formats", {})
-                    dl_url = formats.get("720p") or formats.get("360p") or list(formats.values())[0]
-                    return jsonify({
-                        "success": True,
-                        "title": res_json.get("data", {}).get("title", "Decrypted Media"),
-                        "download_url": dl_url
-                    })
-    except Exception:
-        pass
-
-    # Standard Cobalt Cluster fallbacks for general social formats (Instagram/Twitter)
+    # Fast Server-side backup loop for general items
     fallback_nodes = ["https://co.wuk.sh", "https://cobalt.moe", "https://api.cobalt.lol"]
     for node in fallback_nodes:
         try:
@@ -199,11 +197,11 @@ def download_video():
             if res.status_code == 200:
                 r_data = res.json()
                 if r_data.get("status") in ["stream", "redirect"]:
-                    return jsonify({"success": True, "title": r_data.get("title", "Decrypted Stream"), "download_url": r_data.get("url")})
+                    return jsonify({"success": True, "title": r_data.get("title", "Decrypted Server Stream"), "download_url": r_data.get("url")})
         except Exception:
             continue
 
-    return jsonify({"success": False, "error": "Switching to native engine..."}), 500
+    return jsonify({"success": False, "error": "Server proxy busy, processing via client network."}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
