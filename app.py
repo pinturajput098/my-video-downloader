@@ -1,10 +1,9 @@
-from flask import Flask, request, jsonify, render_template_string
-import requests
+from flask import Flask, render_template_string
 import os
 
 app = Flask(__name__)
 
-# Premium HTML UI with Monetag Ad Integrated
+# Premium UI with Advanced Client-Side Direct Fetch Engine
 HTML_UI = """
 <!DOCTYPE html>
 <html lang="en">
@@ -56,7 +55,7 @@ HTML_UI = """
 
             <div id="loader" class="hidden mt-8 text-center py-6">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-t-transparent mb-3"></div>
-                <p class="text-slate-400 text-xs animate-pulse">Routing through open proxy network...</p>
+                <p class="text-slate-400 text-xs animate-pulse">Bypassing restrictions via Direct Mobile Tunnel...</p>
             </div>
 
             <div id="errorMessage" class="hidden mt-6 bg-red-950/40 border border-red-800/60 text-red-300 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
@@ -69,8 +68,8 @@ HTML_UI = """
                     <img id="resThumb" src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200" alt="Thumbnail" class="w-full sm:w-36 h-24 object-cover rounded-lg border border-slate-700/50 bg-slate-900">
                     <div class="flex-1 flex flex-col justify-between">
                         <div>
-                            <span id="resSource" class="text-[10px] font-bold tracking-widest uppercase bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-0.5 rounded-full">LIVE</span>
-                            <h3 id="resTitle" class="text-sm font-semibold text-slate-200 line-clamp-2 mt-1.5">Video Successfully Extracted</h3>
+                            <span id="resSource" class="text-[10px] font-bold tracking-widest uppercase bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-0.5 rounded-full">SUCCESS</span>
+                            <h3 id="resTitle" class="text-sm font-semibold text-slate-200 line-clamp-2 mt-1.5">Link Decrypted Successfully</h3>
                         </div>
                     </div>
                 </div>
@@ -83,7 +82,7 @@ HTML_UI = """
     </main>
 
     <footer class="w-full text-center py-6 border-t border-slate-900 bg-slate-950/40 text-xs text-slate-500">
-        <p>&copy; 2026 StreamGrab Network. Distributed Proxy Architecture.</p>
+        <p>&copy; 2026 StreamGrab Network. Powered by Client-Side Edge Tunneling.</p>
     </footer>
 
     <script>
@@ -101,29 +100,60 @@ HTML_UI = """
             loader.classList.remove('hidden');
             btn.disabled = true;
 
-            try {
-                const response = await fetch('/api/download', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: urlInput })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    document.getElementById('resTitle').innerText = data.title;
-                    document.getElementById('resSource').innerText = data.source;
-                    document.getElementById('resDlLink').href = data.download_url;
-                    resCard.classList.remove('hidden');
-                } else {
-                    showError(data.error || "All network instances are busy. Try again.");
+            // List of active global public endpoint nodes that accept direct CORS mobile traffic
+            const proxyNodes = [
+                "https://cobalt.moe/",
+                "https://cobalt.bndkt.me/",
+                "https://cobalt.lewd.tech/"
+            ];
+
+            let success = false;
+
+            // Loop directly through the user's browser connection
+            for (let base of proxyNodes) {
+                try {
+                    const response = await fetch(base, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ url: urlInput })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        if (data.status === 'stream' || data.status === 'redirect') {
+                            document.getElementById('resTitle').innerText = data.title || "Ready to Download";
+                            document.getElementById('resSource').innerText = urlInput.includes('youtu') ? "YouTube" : "Instagram";
+                            document.getElementById('resDlLink').href = data.url;
+                            resCard.classList.remove('hidden');
+                            success = true;
+                            break;
+                        } 
+                        else if (data.status === 'picker' && data.picker && data.picker.length > 0) {
+                            document.getElementById('resTitle').innerText = data.title || "Carousel Content";
+                            document.getElementById('resSource').innerText = "Instagram";
+                            document.getElementById('resDlLink').href = data.picker[0].url;
+                            resCard.classList.remove('hidden');
+                            success = true;
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    console.log("Current edge node congested, failing over...");
                 }
-            } catch (err) {
-                showError("Server Connection Lost.");
-            } finally {
-                loader.classList.add('hidden');
-                btn.disabled = false;
+            }
+
+            loader.classList.add('hidden');
+            btn.disabled = false;
+
+            if (!success) {
+                showError("Network overload. Please re-fetch or use an alternative link format.");
             }
         }
+
         function showError(msg) {
             document.getElementById('errText').innerText = msg;
             document.getElementById('errorMessage').classList.remove('hidden');
@@ -137,65 +167,6 @@ HTML_UI = """
 def index():
     return render_template_string(HTML_UI)
 
-@app.route('/api/download', methods=['POST'])
-def download_video():
-    data = request.get_json()
-    if not data or 'url' not in data:
-        return jsonify({"success": False, "error": "URL missing!"}), 400
-        
-    video_url = data['url'].strip()
-    
-    # List of open-source, publicly hosted alternative Cobalt endpoints without JWT blocks
-    cobalt_instances = [
-        "https://api.cobalt.tools",
-        "https://cobalt.api.kwiatecka.xyz",
-        "https://co.wuk.sh"
-    ]
-    
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-    }
-    payload = {"url": video_url}
-
-    # Loop through instances until one successfully gives us the direct download link
-    for instance in cobalt_instances:
-        try:
-            # Clean root endpoint string handling
-            api_endpoint = instance if instance.endswith('/') else f"{instance}/"
-            response = requests.post(api_endpoint, json=payload, headers=headers, timeout=8)
-            
-            if response.status_code == 200:
-                res_data = response.json()
-                status = res_data.get("status")
-                
-                if status in ["stream", "redirect"]:
-                    return jsonify({
-                        "success": True,
-                        "title": res_data.get("title", "Extracted Video"),
-                        "download_url": res_data.get("url"),
-                        "source": "YouTube" if "youtu" in video_url else "Instagram"
-                    })
-                elif status == "picker":
-                    picker_items = res_data.get("picker", [])
-                    if picker_items:
-                        return jsonify({
-                            "success": True,
-                            "title": res_data.get("title", "Multi-Media Content"),
-                            "download_url": picker_items[0].get("url"),
-                            "source": "Media"
-                        })
-            
-            # If the server returned an explicit auth/JWT missing message, skip it immediately
-            continue
-            
-        except Exception:
-            # If instance is down or times out, seamlessly move to the next one
-            continue
-            
-    return jsonify({"success": False, "error": "Main node restricted. Fallback cluster responded with JWT error. Please try another link."}), 500
-
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
-    
