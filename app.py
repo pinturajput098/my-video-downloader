@@ -20,10 +20,8 @@ HTML_UI = """
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
     </style>
 
-    <!-- ======================================================== -->
     <!-- MONETAG AD TAG INTEGRATED -->
     <script src="https://quge5.com/88/tag.min.js" data-zone="232482" async data-cfasync="false"></script>
-    <!-- ======================================================== -->
 </head>
 <body class="text-slate-100 min-h-screen font-sans flex flex-col justify-between">
 
@@ -129,7 +127,6 @@ HTML_UI = """
             } finally {
                 loader.classList.add('hidden');
                 btn.disabled = false;
-                btn.classList.remove('opacity-50');
             }
         }
         function showError(msg) {
@@ -153,14 +150,20 @@ def download_video():
         
     video_url = data['url'].strip()
     
+    # Advanced Bypass Configuration using YouTube iOS Client App spoofing
     ydl_opts = {
         'format': 'best',
         'quiet': True,
         'no_warnings': True,
         'cachedir': False,
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['ios'],
+            }
+        },
         'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
         }
     }
@@ -197,9 +200,13 @@ def download_video():
                 return jsonify({"success": False, "error": "Direct stream not found."}), 400
                 
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        # Error text ko thoda clean karke bhejenge user tak
+        err_msg = str(e)
+        if "Sign in to confirm you're not a bot" in err_msg:
+            err_msg = "YouTube blocked this server IP. Try another link or we need to add cookies.txt."
+        return jsonify({"success": False, "error": err_msg}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
-    
+        
