@@ -56,7 +56,7 @@ HTML_UI = """
 
             <div id="loader" class="hidden mt-8 text-center py-6">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-t-transparent mb-3"></div>
-                <p class="text-slate-400 text-xs animate-pulse">Routing via backend mirror cluster...</p>
+                <p id="loaderText" class="text-slate-400 text-xs animate-pulse">Scanning global bypass array...</p>
             </div>
 
             <div id="errorMessage" class="hidden mt-6 bg-red-950/40 border border-red-800/60 text-red-300 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
@@ -83,7 +83,7 @@ HTML_UI = """
     </main>
 
     <footer class="w-full text-center py-6 border-t border-slate-900 bg-slate-950/40 text-xs text-slate-500">
-        <p>&copy; 2026 StreamGrab Network. Powered by Cloud Mirror Routing.</p>
+        <p>&copy; 2026 StreamGrab Network. Powered by Hyper-Resilient Mirror Routing.</p>
     </footer>
 
     <script>
@@ -115,10 +115,10 @@ HTML_UI = """
                     document.getElementById('resDlLink').href = data.download_url;
                     resCard.classList.remove('hidden');
                 } else {
-                    showError(data.error || "All nodes are congested. Please try again in a few seconds.");
+                    showError(data.error || "All endpoints congested. Re-fetch in 5 seconds.");
                 }
             } catch (err) {
-                showError("Server Connection Lost.");
+                showError("Server Connection Interrupted. Try again.");
             } finally {
                 loader.classList.add('hidden');
                 btn.disabled = false;
@@ -145,35 +145,51 @@ def download_video():
         
     video_url = data['url'].strip()
     
-    # 100% Unrestricted, Non-JWT Public Alternative Proxy Instances
-    mirror_nodes = [
+    # Massive Pool of Open Global Cobalt API Mirrors
+    bypass_nodes = [
         "https://cobalt.moe",
         "https://cobalt.bndkt.me",
         "https://cobalt.lewd.tech",
-        "https://api.cobalt.lol"
+        "https://api.cobalt.lol",
+        "https://cobalt.perennialte.ch",
+        "https://cobalt.api.kwiatecka.xyz",
+        "https://cobalt.q67.me",
+        "https://co.wuk.sh",
+        "https://api.cobalt.tools"
     ]
     
+    # Spoofed Desktop Browser Headers to completely trick firewalls & prevent rate-limiting
     headers = {
         "Accept": "application/json",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Origin": "https://cobalt.tools",
+        "Referer": "https://cobalt.tools/",
+        "Accept-Language": "en-US,en;q=0.9"
     }
-    payload = {"url": video_url}
+    
+    payload = {
+        "url": video_url,
+        "videoQuality": "720",
+        "downloadMode": "video"
+    }
 
-    # Loop through alternative mirrors via backend (Bypasses CORS completely)
-    for node in mirror_nodes:
+    # Brute force rotation logic
+    for index, node in enumerate(bypass_nodes):
         try:
             endpoint = node if node.endswith('/') else f"{node}/"
-            response = requests.post(endpoint, json=payload, headers=headers, timeout=6)
+            
+            # Fast aggressive timeout (4 seconds per node)
+            response = requests.post(endpoint, json=payload, headers=headers, timeout=4)
             
             if response.status_code == 200:
                 res_data = response.json()
                 status = res_data.get("status")
                 
-                # If we get a valid stream or redirect link, return it instantly
                 if status in ["stream", "redirect"]:
                     return jsonify({
                         "success": True,
-                        "title": res_data.get("title", "Ready to Download"),
+                        "title": res_data.get("title", "Decrypted Stream"),
                         "download_url": res_data.get("url"),
                         "source": "YouTube" if "youtu" in video_url else "Instagram"
                     })
@@ -182,21 +198,22 @@ def download_video():
                     if picker_items:
                         return jsonify({
                             "success": True,
-                            "title": res_data.get("title", "Multi-Media Content"),
+                            "title": res_data.get("title", "Multi-Stream Content"),
                             "download_url": picker_items[0].get("url"),
-                            "source": "Instagram" if "instagram" in video_url else "Media"
+                            "source": "Media Stream"
                         })
             
-            # If the current mirror returned an error status or required auth, skip to next node
+            # If current node fails or returns non-200, log silently and cycle to next
+            print(f"Node {index} ({node}) bypassed with status code: {response.status_code}")
             continue
             
-        except Exception:
-            # Server down or timed out? Silently try the next mirror
+        except Exception as e:
+            print(f"Node {index} timed out or failed. Error: {str(e)}")
             continue
             
-    return jsonify({"success": False, "error": "All public mirror nodes are currently rate-limited. Please try again shortly."}), 500
+    return jsonify({"success": False, "error": "All premium cloud filters are actively rate-limiting this video right now. Please re-fetch in a few moments."}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
-                                                  
+    
